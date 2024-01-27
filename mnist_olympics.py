@@ -97,27 +97,30 @@ class BroNet(nn.Module):
 
         self.bn = nn.BatchNorm2d(64)
         self.dp = nn.Dropout(0.2)
-
-        self.maxp = nn.MaxPool2d(4, 4)
-        self.ff = nn.Linear(64 * 5 * 5, 10)
+        self.maxp = nn.MaxPool2d(3, 3)
+        self.ff1 = nn.Linear(64 * 6 * 6, 128)
+        self.ff2 = nn.Linear(128, 10)
 
     def forward(self, x):
         x = F.relu(self.conv1(x))
+        # print(x.shape)
         x = F.relu(self.conv2(x))
         x = self.bn(x)
         x = self.dp(x)
+        # print(x.shape)
         x = self.maxp(x)
-        # print(x.shape, x.dtype)
+        # print(x.shape)
         x = torch.flatten(x, -3)
-        x = self.ff(x)
+        x = F.relu(self.ff1(x))
+        x = self.ff2(x)
         return x
 
 
 model = BroNet()
 model.to(device)
 
-batch_size = 1024
-total_steps = 100
+batch_size = 512
+total_steps = 1000
 optim = torch.optim.AdamW(model.parameters())
 loss_i, acc_i = [], []
 
